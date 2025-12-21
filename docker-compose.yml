@@ -1,0 +1,41 @@
+services:
+  ollama-init:
+    image: curlimages/curl:latest
+    container_name: ollama-init
+    volumes:
+      - ./scripts:/scripts:ro
+      - ./scripts/models.txt:/models/models.txt:ro
+    entrypoint: ["/bin/sh", "/scripts/pull_models.sh"]
+    environment:
+      - OLLAMA_HOST=http://host.docker.internal:11434
+      - MODELS_FILE=/models/models.txt
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: "no"
+
+  pipelines:
+    image: ghcr.io/open-webui/pipelines:main
+    depends_on:
+      - ollama-init
+    ports:
+      - "9099:9099"
+    volumes:
+      - ./pipelines:/app/pipelines
+    environment:
+      - PIPELINES_API_KEY=local-dev-key
+      - OLLAMA_BASE_URL=http://host.docker.internal:11434
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  open-webui:
+    image: ghcr.io/open-webui/open-webui:main
+    depends_on:
+      - pipelines
+    ports:
+      - "3000:8080"
+    environment:
+      - WEBUI_URL=http://localhost:3000
+      - OPENWEBUI_PIPELINES_API_KEY=local-dev-key
+      - ENABLE_OAUTH_SIGNUP=true
+      - OAUTH_MERGE_ACCOUNTS_BY_EMAIL=true
+      - ENABLE_OAUTH_PERSISTENT_CONFIG=false
