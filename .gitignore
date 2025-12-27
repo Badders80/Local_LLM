@@ -3,6 +3,7 @@ __pycache__/
 *.pyc
 
 # Virtual environment
+venv/
 .venv/
 
 # Environment variables
@@ -15,3 +16,17 @@ __pycache__/
 # Logs
 *.log
 .env.local
+
+# Artifacts and build
+artifacts/
+*.pyo
+*.pyd
+*.swp
+*.bak
+*.tmp
+*.old
+*.orig
+
+# Large local dirs
+models/
+logs/
